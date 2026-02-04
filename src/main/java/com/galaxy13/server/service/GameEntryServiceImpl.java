@@ -4,7 +4,6 @@ import com.galaxy13.server.converter.GameEntryConverter;
 import com.galaxy13.server.dto.FileMetadataDto;
 import com.galaxy13.server.dto.GameEntryDto;
 import com.galaxy13.server.dto.upsert.GameEntryUpsertDto;
-import com.galaxy13.server.repository.GameEntryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
