@@ -46,6 +46,9 @@ public class User {
     @Column(name = "updated_at")
     private Instant updatedAt;
 
+    @Column(name = "last_login")
+    private Instant lastLogin;
+
     @Column(name = "is_active")
     @Builder.Default
     private Boolean isActive = true;
