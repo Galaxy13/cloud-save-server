@@ -103,7 +103,7 @@ public class GameSaveDto {
 
         private String action;
 
-        private GameSaveDto gameSaveDto;
+        private GameSaveDto serverSave;
 
         private String conflictReason;
     }
