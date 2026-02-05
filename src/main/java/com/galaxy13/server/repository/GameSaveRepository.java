@@ -32,4 +32,8 @@ public interface GameSaveRepository extends JpaRepository<GameSave, UUID> {
     Long getTotalFileSizeByUserId(UUID userId);
 
     Optional<GameSave> findByChecksumAndUserId(String checksum, UUID userId);
+
+    Optional<GameSave> findByIdAndUserId(UUID id, UUID userId);
+
+    UUID userId(UUID userId);
 }
