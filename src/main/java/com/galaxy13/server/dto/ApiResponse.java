@@ -1,14 +1,13 @@
 package com.galaxy13.server.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.time.Instant;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
-
-import java.time.Instant;
-import java.util.List;
 
 @Data
 @Builder
@@ -37,11 +36,7 @@ public class ApiResponse<T> {
     }
 
     public static <T> ApiResponse<T> success(T data) {
-        return ApiResponse.<T>builder()
-                .success(true)
-                .data(data)
-                .timestamp(Instant.now())
-                .build();
+        return ApiResponse.<T>builder().success(true).data(data).timestamp(Instant.now()).build();
     }
 
     public static <T> ApiResponse<T> success(T data, String message) {
@@ -56,10 +51,7 @@ public class ApiResponse<T> {
     public static <T> ApiResponse<T> error(String message, String code) {
         return ApiResponse.<T>builder()
                 .success(false)
-                .error(ErrorDetails.builder()
-                        .code(code)
-                        .message(message)
-                        .build())
+                .error(ErrorDetails.builder().code(code).message(message).build())
                 .timestamp(Instant.now())
                 .build();
     }
@@ -67,11 +59,7 @@ public class ApiResponse<T> {
     public static <T> ApiResponse<T> error(String message, String code, List<String> details) {
         return ApiResponse.<T>builder()
                 .success(false)
-                .error(ErrorDetails.builder()
-                        .code(code)
-                        .message(message)
-                        .details(details)
-                        .build())
+                .error(ErrorDetails.builder().code(code).message(message).details(details).build())
                 .timestamp(Instant.now())
                 .build();
     }

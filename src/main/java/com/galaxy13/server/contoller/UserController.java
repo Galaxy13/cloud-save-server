@@ -39,8 +39,10 @@ public class UserController {
     @Operation(summary = "Get current user profile")
     public ResponseEntity<ApiResponse<UserDto>> getCurrentUser(
             @AuthenticationPrincipal UserPrincipal principal) {
-        User user = userRepository.findById(principal.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        User user =
+                userRepository
+                        .findById(principal.getId())
+                        .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         UserDto dto = conversionService.convert(user, UserDto.class);
         dto.setTotalSaves(gameSaveService.getUserSaveCount(user.getId()));
         dto.setTotalStorage(gameSaveService.getUserTotalStorage(user.getId()));
@@ -54,8 +56,10 @@ public class UserController {
             @AuthenticationPrincipal UserPrincipal principal,
             @Valid @RequestBody UpdateProfileRequest request) {
 
-        User user = userRepository.findById(principal.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        User user =
+                userRepository
+                        .findById(principal.getId())
+                        .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         if (request.email != null && !request.email.equals(user.getEmail())) {
             if (userRepository.existsByEmail(request.email)) {
                 throw new BadRequestException("Email already exists");
@@ -63,8 +67,9 @@ public class UserController {
             user.setEmail(request.email);
         }
         user = userRepository.save(user);
-        return ResponseEntity.ok(ApiResponse.success(conversionService.convert(user, UserDto.class),
-                "Profile updated"));
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        conversionService.convert(user, UserDto.class), "Profile updated"));
     }
 
     @PostMapping("/password")
@@ -73,8 +78,10 @@ public class UserController {
             @AuthenticationPrincipal UserPrincipal principal,
             @Valid @RequestBody ChangePasswordRequest request) {
 
-        User user = userRepository.findById(principal.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        User user =
+                userRepository
+                        .findById(principal.getId())
+                        .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPasswordHash())) {
             throw new BadRequestException("Current password is incorrect");

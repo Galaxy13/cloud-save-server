@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Size;
+import java.util.Map;
+import java.util.UUID;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -16,9 +18,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/admin")
@@ -35,7 +34,6 @@ public class AdminController {
         return ResponseEntity.ok(ApiResponse.success(stats));
     }
 
-
     @GetMapping("/users")
     @Operation(summary = "Get all users with pagination")
     public ResponseEntity<ApiResponse<ApiResponse.PagedResponse<UserDto>>> getAllUsers(
@@ -48,8 +46,7 @@ public class AdminController {
     @GetMapping("/users/search")
     @Operation(summary = "Search users")
     public ResponseEntity<ApiResponse<ApiResponse.PagedResponse<UserDto>>> searchUsers(
-            @RequestParam String q,
-            @PageableDefault(size = 20) Pageable pageable) {
+            @RequestParam String q, @PageableDefault(size = 20) Pageable pageable) {
 
         Page<UserDto> users = adminService.searchUsers(q, pageable);
         return ResponseEntity.ok(ApiResponse.success(ApiResponse.PagedResponse.from(users)));
@@ -65,8 +62,7 @@ public class AdminController {
     @PatchMapping("/users/{id}")
     @Operation(summary = "Update user")
     public ResponseEntity<ApiResponse<UserDto>> updateUser(
-            @PathVariable UUID id,
-            @Valid @RequestBody UpdateUserRequest request) {
+            @PathVariable UUID id, @Valid @RequestBody UpdateUserRequest request) {
 
         UserDto user = adminService.updateUser(id, request.email, request.role, request.isActive);
         return ResponseEntity.ok(ApiResponse.success(user, "User updated"));
@@ -75,8 +71,7 @@ public class AdminController {
     @PostMapping("/users/{id}/reset-password")
     @Operation(summary = "Reset user password")
     public ResponseEntity<ApiResponse<Void>> resetPassword(
-            @PathVariable UUID id,
-            @Valid @RequestBody ResetPasswordRequest request) {
+            @PathVariable UUID id, @Valid @RequestBody ResetPasswordRequest request) {
 
         adminService.resetUserPassword(id, request.newPassword);
         return ResponseEntity.ok(ApiResponse.success(null, "Password reset successfully"));
@@ -100,7 +95,8 @@ public class AdminController {
 
     @PostMapping("/games")
     @Operation(summary = "Create a new game")
-    public ResponseEntity<ApiResponse<GameDto>> createGame(@Valid @RequestBody GameDto.CreateRequest request) {
+    public ResponseEntity<ApiResponse<GameDto>> createGame(
+            @Valid @RequestBody GameDto.CreateRequest request) {
         GameDto game = gameService.createGame(request);
         return ResponseEntity.ok(ApiResponse.success(game, "Game created"));
     }
@@ -108,8 +104,7 @@ public class AdminController {
     @PatchMapping("/games/{id}")
     @Operation(summary = "Update a game")
     public ResponseEntity<ApiResponse<GameDto>> updateGame(
-            @PathVariable UUID id,
-            @Valid @RequestBody GameDto.UpdateRequest request) {
+            @PathVariable UUID id, @Valid @RequestBody GameDto.UpdateRequest request) {
 
         GameDto game = gameService.updateGame(id, request);
         return ResponseEntity.ok(ApiResponse.success(game, "Game updated"));

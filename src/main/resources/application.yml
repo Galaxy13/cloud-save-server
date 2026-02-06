@@ -1,3 +1,51 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/gamesave
+    username: player
+    password: gamesave
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 500MB
+      max-request-size: 500MB
+  flyway:
+    locations: classpath:db/migrations
+    enabled: true
+    user: player
+    password: gamesave
+    driver-class-name: org.postgresql.Driver
+api:
+  token:
+    pepper: my-pepper
+
+minio:
+  endpoint: http://localhost:9000
+  access-key: minioadmin
+  secret-key: minioadmin123
+  bucket: game-saves
+
+management:
+  endpoints:
+    jmx:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when_authorized
+
 jwt:
   secret: your_secret_key_here
   expiration: 3600000
+  refresh-expiration: 604800000

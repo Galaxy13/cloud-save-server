@@ -3,12 +3,11 @@ package com.galaxy13.server.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.Instant;
 
 @Data
 @Builder
@@ -43,7 +42,9 @@ public class GameDto {
 
         @NotBlank(message = "Slug is required")
         @Size(max = 100, message = "Slug must not exceed 100 characters")
-        @Pattern(regexp = "^[a-z0-9-]+$", message = "Slug must contain only lowercase letters, numbers, and hyphens")
+        @Pattern(
+                regexp = "^[a-z0-9-]+$",
+                message = "Slug must contain only lowercase letters, numbers, and hyphens")
         private String slug;
 
         private String description;

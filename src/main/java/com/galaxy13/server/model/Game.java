@@ -1,15 +1,14 @@
 package com.galaxy13.server.model;
 
 import jakarta.persistence.*;
-import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 @Entity
 @NoArgsConstructor
@@ -17,6 +16,7 @@ import java.util.UUID;
 @Setter
 @Getter
 @Builder
+@Table(name = "games")
 public class Game {
 
     @Id

@@ -1,13 +1,23 @@
+import com.diffplug.spotless.java.GoogleJavaFormatStep
+
 plugins {
     id("java")
     id("org.springframework.boot") version "3.4.3"
     id("io.spring.dependency-management") version "1.1.7"
     id("com.github.node-gradle.node") version "7.0.2"
-    checkstyle
+    id("com.diffplug.spotless") version "7.2.1"
+//    checkstyle
 }
 
-checkstyle {
-    config = resources.text.fromUri("https://raw.githubusercontent.com/OtusTeam/Spring/master/checkstyle.xml")
+//checkstyle {
+//    config = resources.text.fromUri("https://raw.githubusercontent.com/OtusTeam/Spring/master/checkstyle.xml")
+//}
+
+spotless {
+    java {
+        googleJavaFormat(GoogleJavaFormatStep.defaultVersion()).skipJavadocFormatting().aosp()
+        targetExclude("build/**", "/backend/build/generated/**")
+    }
 }
 
 group = "com.galaxy13"
@@ -30,7 +40,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-hateoas")
-    implementation("com.jlefebure:spring-boot-starter-minio")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+//    implementation("com.jlefebure:spring-boot-starter-minio")
     implementation("org.flywaydb:flyway-core")
     implementation("org.flywaydb:flyway-database-postgresql")
     implementation("org.postgresql:postgresql")
