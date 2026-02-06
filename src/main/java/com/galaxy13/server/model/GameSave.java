@@ -1,17 +1,16 @@
 package com.galaxy13.server.model;
 
 import jakarta.persistence.*;
-import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.annotations.UpdateTimestamp;
-import org.hibernate.type.SqlTypes;
-
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "game_saves")
@@ -65,9 +64,7 @@ public class GameSave {
     @Builder.Default
     private boolean isAutoSave = true;
 
-    @Column
-    @Builder.Default
-    private Integer version = 1;
+    @Column @Builder.Default private Integer version = 1;
 
     @OneToMany(mappedBy = "gameSave", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

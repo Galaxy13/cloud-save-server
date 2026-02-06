@@ -5,14 +5,13 @@ import com.galaxy13.server.dto.GameDto;
 import com.galaxy13.server.service.GameService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/games")
@@ -34,8 +33,7 @@ public class GameController {
     @GetMapping("/search")
     @Operation(summary = "Search games by name or slug")
     public ResponseEntity<ApiResponse<ApiResponse.PagedResponse<GameDto>>> searchGames(
-            @RequestParam String q,
-            @PageableDefault(size = 20) Pageable pageable) {
+            @RequestParam String q, @PageableDefault(size = 20) Pageable pageable) {
         Page<GameDto> games = gameService.searchGames(q, pageable);
         return ResponseEntity.ok(ApiResponse.success(ApiResponse.PagedResponse.from(games)));
     }

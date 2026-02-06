@@ -1,15 +1,13 @@
 package com.galaxy13.server.model;
 
 import jakarta.persistence.*;
-import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.springframework.data.annotation.Id;
-
 import java.time.Instant;
 import java.util.UUID;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 @Entity
-@Table(name = "api_token")
+@Table(name = "api_tokens")
 @Getter
 @Setter
 @NoArgsConstructor

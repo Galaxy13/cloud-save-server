@@ -1,37 +1,31 @@
 package com.galaxy13.server.security;
 
+import com.galaxy13.server.config.JwtConfigurationProperties;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
+import javax.crypto.SecretKey;
 import lombok.Getter;
-import lombok.Value;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import javax.crypto.SecretKey;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
-
 @Component
 @Slf4j
 @Getter
+@RequiredArgsConstructor
 public class JWTUtils {
 
-    @Value("${jwt.secret}")
-    private String jwtSecret;
-
-    @Value("${jwt.expiration}")
-    private Long jwtExpiration;
-
-    @Value("${jwt.refresh-expiration}")
-    private Long refreshExpiration;
+    private final JwtConfigurationProperties properties;
 
     private SecretKey getSigningKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
+        byte[] keyBytes = Decoders.BASE64.decode(properties.getSecret());
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
@@ -43,13 +37,13 @@ public class JWTUtils {
     public String generateToken(String username) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("type", "access");
-        return createToken(claims, username, jwtExpiration);
+        return createToken(claims, username, properties.getExpiration());
     }
 
     public String generateRefreshToken(String username) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("type", "refresh");
-        return createToken(claims, username, refreshExpiration);
+        return createToken(claims, username, properties.getRefreshExpiration());
     }
 
     public boolean validateToken(String token, UserDetails userDetails) {
@@ -63,10 +57,7 @@ public class JWTUtils {
 
     public boolean validateToken(String token) {
         try {
-            Jwts.parser()
-                    .verifyWith(getSigningKey())
-                    .build()
-                    .parseSignedClaims(token);
+            Jwts.parser().verifyWith(getSigningKey()).build().parseSignedClaims(token);
             return true;
         } catch (MalformedJwtException e) {
             log.error("Invalid JWT token: {}", e.getMessage());
@@ -74,7 +65,7 @@ public class JWTUtils {
             log.error("Expired JWT token: {}", e.getMessage());
         } catch (UnsupportedJwtException e) {
             log.error("Unsupported JWT token: {}", e.getMessage());
-        }  catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             log.error("JWT claims string is empty: {}", e.getMessage());
         }
         return false;

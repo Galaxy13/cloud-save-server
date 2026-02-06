@@ -1,6 +1,8 @@
 package com.galaxy13.server.exception;
 
 import com.galaxy13.server.dto.ApiResponse;
+import java.nio.file.AccessDeniedException;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,9 +12,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
-
-import java.nio.file.AccessDeniedException;
-import java.util.List;
 
 @RestControllerAdvice
 @Slf4j
@@ -43,18 +42,23 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse<Void>> handleValidationError(MethodArgumentNotValidException ex) {
-        List<String> errors = ex.getBindingResult().getFieldErrors().stream()
-                .map(FieldError::getDefaultMessage)
-                .toList();
+    public ResponseEntity<ApiResponse<Void>> handleValidationError(
+            MethodArgumentNotValidException ex) {
+        List<String> errors =
+                ex.getBindingResult().getFieldErrors().stream()
+                        .map(FieldError::getDefaultMessage)
+                        .toList();
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.error("Validation failed", "VALIDATION_ERROR", errors));
     }
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)
-    public ResponseEntity<ApiResponse<Void>> handleMaxUploadSize(MaxUploadSizeExceededException ex) {
+    public ResponseEntity<ApiResponse<Void>> handleMaxUploadSize(
+            MaxUploadSizeExceededException ex) {
         return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
-                .body(ApiResponse.error("File size exceeds maximum allowed size", "PAYLOAD_TOO_LARGE"));
+                .body(
+                        ApiResponse.error(
+                                "File size exceeds maximum allowed size", "PAYLOAD_TOO_LARGE"));
     }
 
     @ExceptionHandler(Exception.class)

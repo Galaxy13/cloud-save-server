@@ -2,15 +2,14 @@ package com.galaxy13.server.security;
 
 import com.galaxy13.server.model.Role;
 import com.galaxy13.server.model.User;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.UUID;
 
 @Getter
 @AllArgsConstructor
@@ -38,8 +37,8 @@ public class UserPrincipal implements UserDetails {
                 user.getPasswordHash(),
                 user.getRole(),
                 user.getIsActive(),
-                Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
-        );
+                Collections.singletonList(
+                        new SimpleGrantedAuthority("ROLE_" + user.getRole().name())));
     }
 
     @Override
@@ -77,7 +76,7 @@ public class UserPrincipal implements UserDetails {
         return isActive;
     }
 
-    public  boolean isAdmin() {
+    public boolean isAdmin() {
         return role == Role.ADMIN;
     }
 }

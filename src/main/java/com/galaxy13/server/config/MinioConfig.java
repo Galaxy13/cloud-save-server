@@ -4,39 +4,33 @@ import io.minio.BucketExistsArgs;
 import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
 import io.minio.errors.*;
-import lombok.Value;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @Slf4j
+@RequiredArgsConstructor
 public class MinioConfig {
 
-    @Value("${minio.endpoint}")
-    private String endPoint;
-
-    @Value("${minio.access-key}")
-    private String accessKey;
-
-    @Value("${minio.secret-key}")
-    private String secretKey;
-
-    @Value("${minio.bucket}")
-    private String bucket;
+    private final MinioConfigurationProperties properties;
 
     @Bean
     public MinioClient minioClient() {
-        MinioClient minioClient = MinioClient.builder()
-                .endpoint(endPoint)
-                .credentials(accessKey, secretKey)
-                .build();
+        MinioClient minioClient =
+                MinioClient.builder()
+                        .endpoint(properties.getEndpoint())
+                        .credentials(properties.getAccessKey(), properties.getSecretKey())
+                        .build();
         try {
-            boolean bucketExists = minioClient.bucketExists(BucketExistsArgs
-                    .builder().bucket(bucket).build());
+            boolean bucketExists =
+                    minioClient.bucketExists(
+                            BucketExistsArgs.builder().bucket(properties.getBucket()).build());
             if (!bucketExists) {
-                minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucket).build());
-                log.info("Created MinIO bucket {}", bucket);
+                minioClient.makeBucket(
+                        MakeBucketArgs.builder().bucket(properties.getBucket()).build());
+                log.info("Created MinIO bucket {}", properties.getBucket());
             }
         } catch (Exception e) {
             throw new IllegalStateException("Could not create MinioClient", e);

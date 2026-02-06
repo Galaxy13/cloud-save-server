@@ -10,6 +10,11 @@ import com.galaxy13.server.repository.GameRepository;
 import com.galaxy13.server.repository.GameSaveRepository;
 import com.galaxy13.server.repository.SaveHistoryRepository;
 import com.galaxy13.server.repository.UserRepository;
+import java.io.InputStream;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.convert.ConversionService;
@@ -18,12 +23,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.InputStream;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -43,34 +42,42 @@ public class GameSaveService {
     private final ConversionService conversionService;
 
     @Transactional
-    public GameSaveDto uploadSave(UUID userId, MultipartFile file, GameSaveDto.UploadRequest request) throws Exception {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    public GameSaveDto uploadSave(
+            UUID userId, MultipartFile file, GameSaveDto.UploadRequest request) throws Exception {
+        User user =
+                userRepository
+                        .findById(userId)
+                        .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        Game game = gameRepository.findBySlug(request.getGameSlug())
-                .orElseThrow(() -> new ResourceNotFoundException("Game not found"));
+        Game game =
+                gameRepository
+                        .findBySlug(request.getGameSlug())
+                        .orElseThrow(() -> new ResourceNotFoundException("Game not found"));
 
         String checksum = fileStorageService.calculateChecksum(file);
 
-        Optional<GameSave> existingSave = gameSaveRepository.findByChecksumAndUserId(checksum, userId);
+        Optional<GameSave> existingSave =
+                gameSaveRepository.findByChecksumAndUserId(checksum, userId);
         if (existingSave.isPresent() && existingSave.get().getGame().getId().equals(game.getId())) {
-            log.info("Duplicate save detected for user {} and game {}",userId, game.getId());
+            log.info("Duplicate save detected for user {} and game {}", userId, game.getId());
             return conversionService.convert(existingSave.get(), GameSaveDto.class);
         }
         String fileKey = fileStorageService.uploadFile(file, userId, game.getSlug());
 
-        GameSave gameSave = GameSave.builder()
-                .user(user)
-                .game(game)
-                .saveName(request.getSaveName())
-                .description(request.getDescription())
-                .fileKey(fileKey)
-                .size(file.getSize())
-                .checksum(checksum)
-                .metadata(request.getMetadata())
-                .isAutoSave(request.getIsAutoSave() != null ? request.getIsAutoSave() : false)
-                .version(1)
-                .build();
+        GameSave gameSave =
+                GameSave.builder()
+                        .user(user)
+                        .game(game)
+                        .saveName(request.getSaveName())
+                        .description(request.getDescription())
+                        .fileKey(fileKey)
+                        .size(file.getSize())
+                        .checksum(checksum)
+                        .metadata(request.getMetadata())
+                        .isAutoSave(
+                                request.getIsAutoSave() != null ? request.getIsAutoSave() : false)
+                        .version(1)
+                        .build();
 
         gameSave = gameSaveRepository.save(gameSave);
         log.info("Save {} has been successfully uploaded for user {}", gameSave.getId(), userId);
@@ -78,25 +85,30 @@ public class GameSaveService {
     }
 
     @Transactional
-    public GameSaveDto updateSave(UUID userId, UUID saveId,
-                                  MultipartFile file, GameSaveDto.UpdateRequest request) throws Exception {
-        GameSave gameSave = gameSaveRepository.findByIdAndUserId(saveId, userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Save not found"));
+    public GameSaveDto updateSave(
+            UUID userId, UUID saveId, MultipartFile file, GameSaveDto.UpdateRequest request)
+            throws Exception {
+        GameSave gameSave =
+                gameSaveRepository
+                        .findByIdAndUserId(saveId, userId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Save not found"));
 
         if (file != null && !file.isEmpty()) {
             String checksum = fileStorageService.calculateChecksum(file);
 
             if (!checksum.equals(gameSave.getChecksum())) {
-                SaveHistory history = SaveHistory.builder()
-                        .gameSave(gameSave)
-                        .fileKey(gameSave.getFileKey())
-                        .size(gameSave.getSize())
-                        .checksum(gameSave.getChecksum())
-                        .version(gameSave.getVersion())
-                        .build();
+                SaveHistory history =
+                        SaveHistory.builder()
+                                .gameSave(gameSave)
+                                .fileKey(gameSave.getFileKey())
+                                .size(gameSave.getSize())
+                                .checksum(gameSave.getChecksum())
+                                .version(gameSave.getVersion())
+                                .build();
                 saveHistoryRepository.save(history);
 
-                String newFileKey = fileStorageService.uploadFile(file, userId, gameSave.getFileKey());
+                String newFileKey =
+                        fileStorageService.uploadFile(file, userId, gameSave.getFileKey());
 
                 gameSave.setFileKey(newFileKey);
                 gameSave.setSize(file.getSize());
@@ -120,13 +132,15 @@ public class GameSaveService {
 
     @Transactional(readOnly = true)
     public Page<GameSaveDto> getUserSaves(UUID userId, Pageable pageable) {
-        return gameSaveRepository.findByUserId(userId, pageable)
+        return gameSaveRepository
+                .findByUserId(userId, pageable)
                 .map(gameSave -> conversionService.convert(gameSave, GameSaveDto.class));
     }
 
     @Transactional(readOnly = true)
     public Page<GameSaveDto> getUserSavesByGame(UUID userId, UUID gameId, Pageable pageable) {
-        return gameSaveRepository.findByUserIdAndGameId(userId, gameId, pageable)
+        return gameSaveRepository
+                .findByUserIdAndGameId(userId, gameId, pageable)
                 .map(gameSave -> conversionService.convert(gameSave, GameSaveDto.class));
     }
 
@@ -139,32 +153,42 @@ public class GameSaveService {
 
     @Transactional(readOnly = true)
     public GameSaveDto getSave(UUID userId, UUID saveId) {
-        GameSave gameSave = gameSaveRepository.findByIdAndUserId(saveId, userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Save not found"));
+        GameSave gameSave =
+                gameSaveRepository
+                        .findByIdAndUserId(saveId, userId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Save not found"));
         return conversionService.convert(gameSave, GameSaveDto.class);
     }
 
     @Transactional(readOnly = true)
     public GameSaveDto getSaveWithDownloadUrl(UUID userId, UUID saveId) throws Exception {
-        GameSave gameSave = gameSaveRepository.findByIdAndUserId(saveId, userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Save not found"));
+        GameSave gameSave =
+                gameSaveRepository
+                        .findByIdAndUserId(saveId, userId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Save not found"));
         GameSaveDto gameSaveDto = conversionService.convert(gameSave, GameSaveDto.class);
-        gameSaveDto.setDownloadUrl(fileStorageService.getPresignedDownloadUrl(gameSave.getFileKey(), 60));
+        gameSaveDto.setDownloadUrl(
+                fileStorageService.getPresignedDownloadUrl(gameSave.getFileKey(), 60));
         return gameSaveDto;
     }
 
     public InputStream downloadSave(UUID userId, UUID saveId) throws Exception {
-        GameSave gameSave = gameSaveRepository.findByIdAndUserId(saveId, userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Save not found"));
+        GameSave gameSave =
+                gameSaveRepository
+                        .findByIdAndUserId(saveId, userId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Save not found"));
         return fileStorageService.downloadFile(gameSave.getFileKey());
     }
 
     @Transactional
     public void deleteSave(UUID userId, UUID saveId) throws Exception {
-        GameSave gameSave = gameSaveRepository.findByIdAndUserId(saveId, userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Save not found"));
+        GameSave gameSave =
+                gameSaveRepository
+                        .findByIdAndUserId(saveId, userId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Save not found"));
 
-        List<SaveHistory> history = saveHistoryRepository.findByGameSaveIdOrderByVersionDesc(gameSave.getId());
+        List<SaveHistory> history =
+                saveHistoryRepository.findByGameSaveIdOrderByVersionDesc(gameSave.getId());
         for (SaveHistory saveHistory : history) {
             try {
                 fileStorageService.deleteFile(saveHistory.getFileKey());
@@ -178,29 +202,20 @@ public class GameSaveService {
     }
 
     public GameSaveDto.SyncResponse checkSync(UUID userId, GameSaveDto.SyncRequest request) {
-        List<GameSave> saves = gameSaveRepository.findByUserIdAndGameSlug(userId, request.getGameSlug());
+        List<GameSave> saves =
+                gameSaveRepository.findByUserIdAndGameSlug(userId, request.getGameSlug());
 
         if (saves.isEmpty()) {
             if (request.getLastKnownChecksum() != null) {
-                return GameSaveDto.SyncResponse.builder()
-                        .needsSync(true)
-                        .action("UPLOAD")
-                        .build();
+                return GameSaveDto.SyncResponse.builder().needsSync(true).action("UPLOAD").build();
             }
-            return GameSaveDto.SyncResponse.builder()
-                    .needsSync(false)
-                    .action("NONE")
-                    .build();
+            return GameSaveDto.SyncResponse.builder().needsSync(false).action("NONE").build();
         }
-        GameSave latestSave = saves.stream()
-                .max(Comparator.comparing(GameSave::getUpdatedAt))
-                .orElse(null);
+        GameSave latestSave =
+                saves.stream().max(Comparator.comparing(GameSave::getUpdatedAt)).orElse(null);
 
         if (latestSave == null) {
-            return GameSaveDto.SyncResponse.builder()
-                    .needsSync(false)
-                    .action("NONE")
-                    .build();
+            return GameSaveDto.SyncResponse.builder().needsSync(false).action("NONE").build();
         }
 
         if (request.getLastKnownChecksum() == null) {
@@ -211,12 +226,10 @@ public class GameSaveService {
                     .build();
         }
         if (request.getLastKnownChecksum().equals(latestSave.getChecksum())) {
-            return GameSaveDto.SyncResponse.builder()
-                    .needsSync(false)
-                    .action("NONE")
-                    .build();
+            return GameSaveDto.SyncResponse.builder().needsSync(false).action("NONE").build();
         }
-        if (request.getLastSyncTime() != null && latestSave.getUpdatedAt().isAfter(request.getLastSyncTime())) {
+        if (request.getLastSyncTime() != null
+                && latestSave.getUpdatedAt().isAfter(request.getLastSyncTime())) {
             return GameSaveDto.SyncResponse.builder()
                     .needsSync(true)
                     .action("CONFLICT")
@@ -232,17 +245,25 @@ public class GameSaveService {
     }
 
     public List<SaveHistory> getSaveHistory(UUID userId, UUID saveId) {
-        GameSave gameSave = gameSaveRepository.findByIdAndUserId(saveId, userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Save not found"));
+        GameSave gameSave =
+                gameSaveRepository
+                        .findByIdAndUserId(saveId, userId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Save not found"));
         return saveHistoryRepository.findByGameSaveIdOrderByVersionDesc(gameSave.getId());
     }
 
-    public InputStream downloadHistoryVersion(UUID userId, UUID saveId, UUID historyId) throws Exception {
-        GameSave gameSave = gameSaveRepository.findByIdAndUserId(saveId, userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Save not found"));
+    public InputStream downloadHistoryVersion(UUID userId, UUID saveId, UUID historyId)
+            throws Exception {
+        GameSave gameSave =
+                gameSaveRepository
+                        .findByIdAndUserId(saveId, userId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Save not found"));
 
-        SaveHistory history = saveHistoryRepository.findById(historyId)
-                .orElseThrow(() -> new ResourceNotFoundException("History version not found"));
+        SaveHistory history =
+                saveHistoryRepository
+                        .findById(historyId)
+                        .orElseThrow(
+                                () -> new ResourceNotFoundException("History version not found"));
         if (!history.getGameSave().getId().equals(gameSave.getId())) {
             throw new ResourceNotFoundException("History version does not belong to this save");
         }
@@ -258,4 +279,3 @@ public class GameSaveService {
         return total != null ? total : 0L;
     }
 }
-

@@ -8,7 +8,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +24,8 @@ public class SyncController {
     @Operation(summary = "Check if local save needs sync with server")
     public ResponseEntity<ApiResponse<GameSaveDto.SyncResponse>> checkSync(
             @AuthenticationPrincipal UserPrincipal user,
-            @Valid @RequestBody GameSaveDto.SyncRequest request) throws Exception {
+            @Valid @RequestBody GameSaveDto.SyncRequest request)
+            throws Exception {
 
         GameSaveDto.SyncResponse response = gameSaveService.checkSync(user.getId(), request);
         return ResponseEntity.ok(ApiResponse.success(response));
