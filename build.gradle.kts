@@ -1,4 +1,5 @@
 import com.diffplug.spotless.java.GoogleJavaFormatStep
+import com.github.gradle.node.npm.task.NpmTask
 
 plugins {
     id("java")
@@ -63,6 +64,40 @@ dependencies {
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
 }
+
+node {
+    version.set("20.19.0")
+    npmVersion.set("10.2.4")
+    download.set(true)
+}
+
+//val adminDir = file("src/ui/admin-panel")
+//val adminDist = file("src/ui/admin-panel/dist")
+//val adminTarget = file("src/main/resources/static/admin")
+//
+//val adminNpmInstall = tasks.register<NpmTask>("adminNpmInstall") {
+//    dependsOn("npmInstall")
+//    workingDir.set(adminDir)
+//    args.set(listOf("ci"))
+//}
+//
+//val adminBuild = tasks.register<NpmTask>("adminBuild") {
+//    dependsOn(adminNpmInstall)
+//    workingDir.set(adminDir)
+//    args.set(listOf("run", "build"))
+//    inputs.dir(adminDist)
+//    outputs.dir(adminDist)
+//}
+//
+//val adminCopy = tasks.register<Copy>("adminCopy") {
+//    dependsOn(adminBuild)
+//    from(adminDist)
+//    into(adminTarget)
+//}
+//
+//tasks.named("processResources") {
+//    dependsOn(adminCopy)
+//}
 
 tasks.test {
     useJUnitPlatform()

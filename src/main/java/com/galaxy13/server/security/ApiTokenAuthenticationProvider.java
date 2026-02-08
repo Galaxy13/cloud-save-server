@@ -6,7 +6,6 @@ import com.galaxy13.server.model.User;
 import com.galaxy13.server.repository.ApiTokenRepository;
 import java.time.Instant;
 import java.util.List;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -26,9 +25,9 @@ public class ApiTokenAuthenticationProvider implements AuthenticationProvider {
     private final ApiTokenHasher apiTokenHasher;
 
     @Override
-    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        ApiTokenAuthenticationToken auth =
-                (ApiTokenAuthenticationToken) authentication;
+    public Authentication authenticate(Authentication authentication)
+            throws AuthenticationException {
+        ApiTokenAuthenticationToken auth = (ApiTokenAuthenticationToken) authentication;
 
         String rawToken = (String) auth.getCredentials();
 
@@ -39,8 +38,10 @@ public class ApiTokenAuthenticationProvider implements AuthenticationProvider {
         String secret = rawToken.substring(4);
         String tokenHash = apiTokenHasher.hash(secret);
 
-        ApiToken apiToken = apiTokenRepository.findByTokenHash(tokenHash)
-                .orElseThrow(() -> new BadCredentialsException("API token not found"));
+        ApiToken apiToken =
+                apiTokenRepository
+                        .findByTokenHash(tokenHash)
+                        .orElseThrow(() -> new BadCredentialsException("API token not found"));
 
         if (!apiToken.isActive()) {
             log.debug("API token inactive.");
@@ -56,13 +57,9 @@ public class ApiTokenAuthenticationProvider implements AuthenticationProvider {
         User user = apiToken.getUser();
         var authorities = List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
 
-        var principal = new org.springframework.security.core.userdetails.User(
-                user.getUsername(),
-                "",
-                user.getIsActive(),
-                true, true, true,
-                authorities
-        );
+        var principal =
+                new org.springframework.security.core.userdetails.User(
+                        user.getUsername(), "", user.getIsActive(), true, true, true, authorities);
 
         return new ApiTokenAuthenticationToken(principal, rawToken, authorities);
     }

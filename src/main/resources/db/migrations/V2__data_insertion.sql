@@ -1,5 +1,5 @@
 INSERT INTO users (username, email, password_hash, role)
-VALUES ('admin', 'admin@example.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZRGdjGj/n3QYNXK1S7E6qr5MHJz.K', 'ADMIN');
+VALUES ('admin', 'admin@example.com', '$2a$12$1GaEpzwNLkByWz6m9cm47.3f898Rc6BDS8tN8efj/lkMwbqRMgTma', 'ADMIN');
 
 INSERT INTO games (name, slug, description)
 VALUES  ('Minecraft', 'minecraft', 'Build and explore infinite worlds'),

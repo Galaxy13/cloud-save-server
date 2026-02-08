@@ -46,6 +46,6 @@ management:
       show-details: when_authorized
 
 jwt:
-  secret: your_secret_key_here
+  secret: cGljdHVyZWZpeHN0aWNrZm91Z2h0bmVpZ2hib3JkaXZpc2lvbnJlc2VhcmNodG9kYXk=
   expiration: 3600000
   refresh-expiration: 604800000

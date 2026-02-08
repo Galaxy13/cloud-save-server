@@ -1,9 +1,8 @@
 package com.galaxy13.server.security;
 
+import java.util.Collection;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
-
-import java.util.Collection;
 
 public class ApiTokenAuthenticationToken extends AbstractAuthenticationToken {
 
@@ -18,9 +17,7 @@ public class ApiTokenAuthenticationToken extends AbstractAuthenticationToken {
     }
 
     public ApiTokenAuthenticationToken(
-            Object principal,
-            String token,
-            Collection<? extends GrantedAuthority> authorities) {
+            Object principal, String token, Collection<? extends GrantedAuthority> authorities) {
         super(authorities);
         this.principal = principal;
         this.token = token;

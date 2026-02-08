@@ -1,6 +1,5 @@
 package com.galaxy13.server.security;
 
-import com.galaxy13.server.service.CustomUserDetailsService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,8 +27,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JWTUtils jwtUtils;
 
     private final UserDetailsService userDetailsService;
-    @Lazy
-    private final AuthenticationManager authenticationManager;
+    @Lazy private final AuthenticationManager authenticationManager;
 
     @Override
     protected void doFilterInternal(
