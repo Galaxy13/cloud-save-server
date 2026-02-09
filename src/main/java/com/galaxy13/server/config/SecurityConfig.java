@@ -44,6 +44,14 @@ public class SecurityConfig {
                                 auth.requestMatchers("/api/v1/auth/**")
                                         .permitAll()
                                         .requestMatchers(
+                                                "/",
+                                                "/index.html",
+                                                "/favicon.ico",
+                                                "/assets/**",
+                                                "/vite.svg",
+                                                "/robots.txt"
+                                        ).permitAll()
+                                        .requestMatchers(
                                                 "/api-docs/**",
                                                 "/swagger-ui/**",
                                                 "/swagger-ui.html")
@@ -95,7 +103,8 @@ public class SecurityConfig {
         return authenticationProvider;
     }
 
-    public JwtAuthenticationFilter jwtAuthenticationFilter(AuthenticationManager authenticationManager) {
+    public JwtAuthenticationFilter jwtAuthenticationFilter(
+            AuthenticationManager authenticationManager) {
         return new JwtAuthenticationFilter(jwtUtils, userDetailsService, authenticationManager);
     }
 
