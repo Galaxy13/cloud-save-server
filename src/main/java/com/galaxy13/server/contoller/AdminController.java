@@ -1,5 +1,6 @@
 package com.galaxy13.server.contoller;
 
+import com.galaxy13.server.dto.AdminDto;
 import com.galaxy13.server.dto.ApiResponse;
 import com.galaxy13.server.dto.GameDto;
 import com.galaxy13.server.dto.UserDto;
@@ -8,10 +9,8 @@ import com.galaxy13.server.service.GameService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Size;
 import java.util.Map;
 import java.util.UUID;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -62,18 +61,18 @@ public class AdminController {
     @PatchMapping("/users/{id}")
     @Operation(summary = "Update user")
     public ResponseEntity<ApiResponse<UserDto>> updateUser(
-            @PathVariable UUID id, @Valid @RequestBody UpdateUserRequest request) {
+            @PathVariable UUID id, @Valid @RequestBody AdminDto.UpdateUserRequest request) {
 
-        UserDto user = adminService.updateUser(id, request.email, request.role, request.isActive);
+        UserDto user = adminService.updateUser(id, request.getEmail(), request.getRole(), request.getIsActive());
         return ResponseEntity.ok(ApiResponse.success(user, "User updated"));
     }
 
     @PostMapping("/users/{id}/reset-password")
     @Operation(summary = "Reset user password")
     public ResponseEntity<ApiResponse<Void>> resetPassword(
-            @PathVariable UUID id, @Valid @RequestBody ResetPasswordRequest request) {
+            @PathVariable UUID id, @Valid @RequestBody AdminDto.ResetPasswordRequest request) {
 
-        adminService.resetUserPassword(id, request.newPassword);
+        adminService.resetUserPassword(id, request.getNewPassword());
         return ResponseEntity.ok(ApiResponse.success(null, "Password reset successfully"));
     }
 
@@ -115,18 +114,5 @@ public class AdminController {
     public ResponseEntity<ApiResponse<Void>> deleteGame(@PathVariable UUID id) {
         gameService.deleteGame(id);
         return ResponseEntity.ok(ApiResponse.success(null, "Game deleted"));
-    }
-
-    @Data
-    public static class UpdateUserRequest {
-        private String email;
-        private String role;
-        private Boolean isActive;
-    }
-
-    @Data
-    public static class ResetPasswordRequest {
-        @Size(min = 8, message = "Password must be at least 8 characters")
-        private String newPassword;
     }
 }
