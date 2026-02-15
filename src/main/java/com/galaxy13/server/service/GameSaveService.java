@@ -57,9 +57,11 @@ public class GameSaveService {
         String checksum = fileStorageService.calculateChecksum(file);
 
         Optional<GameSave> existingSave =
-                gameSaveRepository.findByChecksumAndUserId(checksum, userId);
+                gameSaveRepository.findByChecksumAndUserIdAndSaveName(checksum, userId, request.getSaveName());
         if (existingSave.isPresent() && existingSave.get().getGame().getId().equals(game.getId())) {
-            log.info("Duplicate save detected for user {} and game {}", userId, game.getId());
+            log.info("Duplicate save detected: existing={} (name={}), incoming saveName={}, checksum={}",
+                    existingSave.get().getId(), existingSave.get().getSaveName(),
+                    request.getSaveName(), checksum);
             return conversionService.convert(existingSave.get(), GameSaveDto.class);
         }
         String fileKey = fileStorageService.uploadFile(file, userId, game.getSlug());
@@ -206,11 +208,12 @@ public class GameSaveService {
                 gameSaveRepository.findByUserIdAndGameSlug(userId, request.getGameSlug());
 
         if (saves.isEmpty()) {
-            if (request.getLastKnownChecksum() != null) {
+            if (request.getChecksum() != null) {
                 return GameSaveDto.SyncResponse.builder().needsSync(true).action("UPLOAD").build();
             }
             return GameSaveDto.SyncResponse.builder().needsSync(false).action("NONE").build();
         }
+
         GameSave latestSave =
                 saves.stream().max(Comparator.comparing(GameSave::getUpdatedAt)).orElse(null);
 
@@ -218,29 +221,38 @@ public class GameSaveService {
             return GameSaveDto.SyncResponse.builder().needsSync(false).action("NONE").build();
         }
 
-        if (request.getLastKnownChecksum() == null) {
+        if (request.getChecksum() != null
+                && request.getChecksum().equals(latestSave.getChecksum())) {
+            return GameSaveDto.SyncResponse.builder().needsSync(false).action("NONE").build();
+        }
+
+        if (request.getChecksum() == null) {
             return GameSaveDto.SyncResponse.builder()
                     .needsSync(true)
                     .action("DOWNLOAD")
                     .serverSave(conversionService.convert(latestSave, GameSaveDto.class))
                     .build();
         }
-        if (request.getLastKnownChecksum().equals(latestSave.getChecksum())) {
-            return GameSaveDto.SyncResponse.builder().needsSync(false).action("NONE").build();
+
+        if (request.getLastSyncTime() == null) {
+            return GameSaveDto.SyncResponse.builder()
+                    .needsSync(true)
+                    .action("UPLOAD")
+                    .build();
         }
-        if (request.getLastSyncTime() != null
-                && latestSave.getUpdatedAt().isAfter(request.getLastSyncTime())) {
+
+        if (latestSave.getUpdatedAt().isAfter(request.getLastSyncTime())) {
             return GameSaveDto.SyncResponse.builder()
                     .needsSync(true)
                     .action("CONFLICT")
                     .serverSave(conversionService.convert(latestSave, GameSaveDto.class))
-                    .conflictReason("Server has newer save than last sync time")
+                    .conflictReason("Both local and server saves changed since last sync")
                     .build();
         }
+
         return GameSaveDto.SyncResponse.builder()
                 .needsSync(true)
                 .action("UPLOAD")
-                .serverSave(conversionService.convert(latestSave, GameSaveDto.class))
                 .build();
     }
 

@@ -30,7 +30,7 @@ public interface GameSaveRepository extends JpaRepository<GameSave, UUID> {
     @Query("select sum(gs.size) FROM GameSave gs where gs.user.id = :userId")
     Long getTotalFileSizeByUserId(UUID userId);
 
-    Optional<GameSave> findByChecksumAndUserId(String checksum, UUID userId);
+    Optional<GameSave> findByChecksumAndUserIdAndSaveName(String checksum, UUID userId, String saveName);
 
     Optional<GameSave> findByIdAndUserId(UUID id, UUID userId);
 
