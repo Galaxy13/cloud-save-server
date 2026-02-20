@@ -24,8 +24,7 @@ public class SyncController {
     @Operation(summary = "Check if local save needs sync with server")
     public ResponseEntity<ApiResponse<GameSaveDto.SyncResponse>> checkSync(
             @AuthenticationPrincipal UserPrincipal user,
-            @Valid @RequestBody GameSaveDto.SyncRequest request)
-            throws Exception {
+            @Valid @RequestBody GameSaveDto.SyncRequest request) {
 
         GameSaveDto.SyncResponse response = gameSaveService.checkSync(user.getId(), request);
         return ResponseEntity.ok(ApiResponse.success(response));

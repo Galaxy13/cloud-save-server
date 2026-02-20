@@ -88,7 +88,7 @@ public class GameSaveDto {
         @NotBlank(message = "Game slug is required")
         private String gameSlug;
 
-        private String lastKnownChecksum;
+        private String checksum;
 
         private Instant lastSyncTime;
     }
