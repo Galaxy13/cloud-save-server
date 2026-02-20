@@ -35,6 +35,7 @@ public class AdminService {
 
     private final ConversionService conversionService;
 
+    @Transactional(readOnly = true)
     public Map<String, Object> getDashboardStats() {
         Map<String, Object> stats = new HashMap<>();
         stats.put("totalUsers", userRepository.count());
@@ -46,6 +47,7 @@ public class AdminService {
         return stats;
     }
 
+    @Transactional(readOnly = true)
     public Page<UserDto> getAllUsers(Pageable pageable) {
         return userRepository
                 .findAll(pageable)
@@ -59,12 +61,14 @@ public class AdminService {
                         });
     }
 
+    @Transactional(readOnly = true)
     public Page<UserDto> searchUsers(String search, Pageable pageable) {
         return userRepository
                 .searchUsers(search, pageable)
                 .map(user -> conversionService.convert(user, UserDto.class));
     }
 
+    @Transactional(readOnly = true)
     public UserDto getUser(UUID userId) {
         User user =
                 userRepository
@@ -138,6 +142,7 @@ public class AdminService {
         log.info("Admin deleted user {}", user.getUsername());
     }
 
+    @Transactional(readOnly = true)
     public Page<GameDto> getAllGamesAdmin(Pageable pageable) {
         return gameRepository
                 .findAll(pageable)
